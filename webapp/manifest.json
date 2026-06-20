@@ -62,7 +62,10 @@
       "minUI5Version": "1.71.75",
       "libs": {
         "sap.m": {},
-        "sap.ui.core": {}
+        "sap.ui.core": {},
+        "sap.f": {},
+        "sap.uxap": {},
+        "sap.ui.layout": {}
       }
     },
     "contentDensities": {
@@ -91,40 +94,47 @@
     },
     "routing": {
       "config": {
-        "routerClass": "sap.m.routing.Router",
+        "routerClass": "sap.f.routing.Router",
         "viewType": "XML",
-        "async": true,
         "viewPath": "zhr.flexiblecolumnlayout.view",
-        "controlAggregation": "pages",
-        "controlId": "app",
-        "clearControlAggregation": false
+        "controlId": "flexiblecolumnlayout",
+        "controlAggregation": "beginColumnPages",
+        "async": true
       },
       "routes": [
         {
-          "name": "RouteList",
-          "pattern": ":?query:",
-          "target": [
-            "TargetList"
-          ]
+          "pattern": "",
+          "name": "master",
+          "target": ["master"]
+        },
+        {
+          "pattern": "detail/{ocorrencia}/{layout}",
+          "name": "detail",
+          "target": ["master", "detail"]
         }
       ],
       "targets": {
-        "TargetList": {
+
+        "master": {
+          "viewName": "List",
           "viewType": "XML",
-          "transition": "slide",
-          "clearControlAggregation": false,
-          "viewId": "List",
-          "viewName": "List"
+          "controlAggregation": "beginColumnPages"
+        },
+        "detail": {
+          "viewName": "Detail",
+          "viewType": "XML",
+          "controlAggregation": "midColumnPages"
         }
+
       }
     },
     "rootView": {
       "viewName": "zhr.flexiblecolumnlayout.view.App",
       "type": "XML",
-      "async": true,
-      "id": "App"
+      "id": "App",
+      "async": true
     }
-  },
+  },  
   "sap.cloud": {
     "public": true,
     "service": "zhrflexiblecolumnlayout"
