@@ -4,7 +4,8 @@
     height="100%"
     xmlns="sap.m"
     xmlns:f="sap.f"
-    xmlns:mvc="sap.ui.core.mvc">
+    xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core">
 	<f:DynamicPage id="dynamicPageId"
 				   toggleHeaderOnTitleClick="false">
 		<!-- DynamicPage Title -->
@@ -33,6 +34,19 @@
 						<SearchField id="_IDGenSearchField" search=".onSearch" width="17.5rem"/>
 						<OverflowToolbarButton id="_IDGenOverflowToolbarButton" icon="sap-icon://add" type="Transparent" press=".onAdd"/>
 						<OverflowToolbarButton id="_IDGenOverflowToolbarButton1" icon="sap-icon://sort" type="Transparent" press=".onSort"/>
+						<!-- COMBOBOX PERÍODO INI -->
+						<Text id="txtPeriodo" text="Período:"/>
+
+						<Select id="cmbPeriodos"
+							change="onComboBoxPeriodosChange"
+							items="{mdlPeriodos>/}"
+							width="300px">
+							
+							<items>
+								<core:Item id="cmbPeriodosItem" key="{key}" text="{text}"/>
+							</items>
+						</Select>
+						<!-- COMBOBOX PERÍODO FIM -->
 					</OverflowToolbar>
 				</headerToolbar>
 				<columns>

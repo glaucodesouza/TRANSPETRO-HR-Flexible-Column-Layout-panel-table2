@@ -4,17 +4,178 @@ sap.ui.define([
     "sap/ui/model/FilterOperator",
     "sap/ui/model/Sorter",
     "sap/m/MessageBox",
-    "sap/f/library"
-], function (Controller, Filter, FilterOperator, Sorter, MessageBox, fioriLibrary) {
+    "sap/f/library",
+
+    "sap/ui/model/json/JSONModel",
+    "sap/m/MessageToast"
+
+], function (Controller, Filter, FilterOperator, Sorter, MessageBox, fioriLibrary, JSONModel, MessageToast) {
     "use strict";
 
     const LayoutType = fioriLibrary.LayoutType;
+
+    var oModelPeriodos;
+    var oModelOcorrencias;
+    var oModelPerfis;
+    var oModelCodigosFrequenciaDoSAP;
+    var oAppConfig = {
+        "filters": {
+            "visible": false
+        }
+    }
 
     return Controller.extend("zhr.flexiblecolumnlayout.controller.List", {
         onInit: function () {
             this.oRouter = this.getOwnerComponent().getRouter();
             this._bDescendingSort = false;
+            this.lerDadosDoSAP();
         },
+
+        // Ler dados do SAP INI ----------------------------------------------
+        lerDadosDoSAP: function () {
+
+            let oModel = this.getOwnerComponent().getModel(); //this.getView().getModel();
+
+            //Ini Ocorrencias----------------------------------------------------------------------------
+            oModel.read("/OcorrenciasSet", {
+                success: (oData) => {
+                    oModelOcorrencias = new JSONModel(oData.results);
+
+                    //Ini Periodos----------------------------------------------------------------------------
+                    oModel.read("/PeriodosSet", {
+                        success: (oData) => {
+
+                            let aPeriodos = new JSONModel(oData.results);
+
+                            // Insere item vazio no topo
+                            aPeriodos.oData.unshift({
+                                Periodo: "",
+                                Ocorrencias: "",
+                                isPlaceholder: true
+                            });
+
+                            oModelPeriodos = aPeriodos;
+                            this.montarComboboxPeriodos();
+
+                    //         //Ini Perfis----------------------------------------------------------------------------
+                    //         oModel.read("/PerfisSet", {
+                    //             success: (oData) => {
+
+                    //                 oModelPerfis = new JSONModel(oData.results);
+
+                    //                 //DEFINIR se perfil Apontador está em modo de edição ou não (editMode: true/false).
+                    //                 this.validarSeCamposFiltrosSaoVisiveis();
+
+                    //                 //Ini Códigos Frequência----------------------------------------------------------------------------
+                    //                 oModel.read("/CodigosFrequenciaSet", {
+                    //                     success: (oData) => {
+
+                    //                         oModelCodigosFrequenciaDoSAP = new JSONModel(oData.results);
+                    //                         this.getView().setModel(new JSONModel(oModelCodigosFrequenciaDoSAP.oData), "mdlCodigosFrequencia");
+
+                    //                         this.preencherCamposAuxiliares();
+
+                    //                     },
+                    //                     error: (oError) => {
+                    //                         MessageToast.show("Erro ao ler os Códigos de Frequência");
+                    //                         //console.log("Erro ao ler os Perfis do SAP: ", oError);
+                    //                     }
+                    //                 });
+                    //                 //Fim Códigos Frequência----------------------------------------------------------------------------
+
+                    //             },
+                    //             error: (oError) => {
+                    //                 MessageToast.show("Erro ao ler os Perfis");
+                    //                 //console.log("Erro ao ler os Perfis do SAP: ", oError);
+                    //             }
+                    //         });
+                    //         //Fim Perfis----------------------------------------------------------------------------
+
+                        },
+                        error: (oError) => {
+                            MessageToast.show("Erro ao ler os Periodos");
+                        }
+                    });
+                    //Fim Periodos----------------------------------------------------------------------------
+                },
+                error: (oError) => {
+                    MessageToast.show("Erro ao ler as Ocorrencias");
+                }
+            });
+            //Fim Ocorrencias----------------------------------------------------------------------------
+        
+        },
+
+        // preencherCamposAuxiliares: function () {
+        //     oModelOcorrencias.oData.forEach(function(oOcorrencia) {
+        //         const oCodigoFrequencia = oModelCodigosFrequenciaDoSAP.oData.find((element) => element.Codigo === oOcorrencia.Justificativa);
+        //         if (oCodigoFrequencia) {
+        //             oOcorrencia.JustificativaTexto = oCodigoFrequencia.Codigo + " - " + oCodigoFrequencia.Descricao;
+        //         }
+        //     });
+
+        //     this.getView().setModel(new JSONModel(oModelOcorrencias.oData), "mdlOcorrencias");
+        // },
+        
+        montarComboboxPeriodos: function () {
+            //Montar COMBOBOX de Períodos
+            var oComboBox = this.getView().byId("cmbPeriodos");
+            var aPeriodosDoSAP = oModelPeriodos.oData;
+
+            aPeriodosDoSAP.forEach(function(oPeriodo) {
+                oComboBox.addItem(new sap.ui.core.Item({
+                    text: oPeriodo.Ocorrencias ? `${oPeriodo.Periodo} (${oPeriodo.Ocorrencias} ocorrências)` : '',
+                    key: oPeriodo.Periodo
+                }));
+            });
+        },
+
+        // onComboBoxPeriodosChange: function (oEvent) {
+
+        //     let sPeriodoSelecionado = oEvent.getSource().getSelectedKey();
+
+        //     if (!sPeriodoSelecionado) {
+        //         this.getView().setModel( new JSONModel([]), "mdlOcorrenciasFiltradas" );
+        //         return;
+        //     }
+
+        //     let aOcorrenciasFiltradas = oModelOcorrencias.oData
+        //         .filter(function(oOcorrencia) {
+        //             return oOcorrencia.Periodo === sPeriodoSelecionado;
+        //         })
+        //         .map(function(oOcorrencia) {
+        //             return {
+        //                 ...oOcorrencia, // mantém dados originais
+        //                 Data: new Date(oOcorrencia.Data.getTime() + (3 * 60 * 60 * 1000)),//new Date(oOcorrencia.Data.getDateValue() + oOcorrencia.Data.getTimezoneOffset() * 60000), //formatter.formatDateBR(oOcorrencia.Data), // formata data para exibição
+        //                 editMode: oOcorrencia.Status === "01" ? true : false // boolean para editable
+        //             };
+        //         });
+
+        //     this.getView().setModel( new JSONModel(aOcorrenciasFiltradas), "mdlOcorrenciasFiltradas" );
+
+        //     // pegar modelo atual
+        //     let oView = this.getView();
+        //     let oModel = oView.getModel("mdlOcorrenciasFiltradas");
+        //     let aData = oModel.getData();
+        //     oModel.setData(aData);
+        //     oModel.refresh(true);            
+        //     this.onPesquisar(); // dispara pesquisa para aplicar filtros de SearchField no período selecionado
+        // },
+
+        // validarSeCamposFiltrosSaoVisiveis: function() {
+        //     // DEFINIR se perfil Apontador está em modo de edição ou não (editMode: true/false).
+        //     // APENAS o Apontador poderá ter os campos filtros visíveis.
+        //     let aModelPerfis = oModelPerfis.getData();
+        //     for (let index = 0; index < aModelPerfis.length; index++) {
+        //         const element = aModelPerfis[index];
+        //         if (element.Perfil === "Apontador") {
+        //             oAppConfig.filters.visible = true;
+        //             this.getView().setModel(new JSONModel(oAppConfig.filters), "mdlAppConfig");
+        //             break;
+        //         }
+        //     }
+        // },
+        // Ler dados do SAP FIM ------------------------------------------------
 
         onListItemPress: function (oEvent) {
 
@@ -36,21 +197,6 @@ sap.ui.define([
                 ocorrencia: sIndex,
                 layout: oNextUIState.layout
             });
-
-            // const oItem = oEvent.getParameter("listItem");
-            // const oContext = oItem.getBindingContext("mdlOcorrencias");
-
-            // if (!oContext) {
-            //     return;
-            // }
-
-            // const sPath = oContext.getPath();
-            // const sIndex = sPath.split("/").pop();
-
-            // this.oRouter.navTo("detail", {
-            //     ocorrencia: sIndex,
-            //     layout: LayoutType.TwoColumnsMidExpanded
-            // });
         },
 
         onSearch: function (oEvent) {
