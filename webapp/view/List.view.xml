@@ -25,7 +25,7 @@
 				mode="SingleSelectMaster"
 				itemPress=".onListItemPress"
 				inset="false"
-				items="{mdlOcorrencias>/Ocorrencias}"
+				items="{mdlOcorrenciasFiltradas>/}"
 				class="sapFDynamicPageAlignContent"
 				width="auto">
 				<headerToolbar>
@@ -66,10 +66,10 @@
 				<items>
 					<ColumnListItem id="_IDGenColumnListItem" type="Navigation">
 						<cells>
-							<Text id="txtEmpregado" text="{mdlOcorrencias>Empregado}" /> 
-							<Text id="txtHoraInicio" text="{mdlOcorrencias>HoraInicio}" /> 
-							<Text id="txtHoraFim" text="{mdlOcorrencias>HoraFim}" /> 
-							<Text id="txtJustificativa" text="{mdlOcorrencias>Justificativa}" /> 
+							<Text id="txtEmpregado" text="{mdlOcorrenciasFiltradas>Empregado}" /> 
+							<Text id="txtHoraInicio" text="{mdlOcorrenciasFiltradas>HoraInicio}" /> 
+							<Text id="txtHoraFim" text="{mdlOcorrenciasFiltradas>HoraFim}" /> 
+							<Text id="txtJustificativa" text="{mdlOcorrenciasFiltradas>Justificativa}" /> 
 						</cells>
 					</ColumnListItem>
 				</items>

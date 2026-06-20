@@ -57,39 +57,38 @@ sap.ui.define([
                             oModelPeriodos = aPeriodos;
                             this.montarComboboxPeriodos();
 
-                    //         //Ini Perfis----------------------------------------------------------------------------
-                    //         oModel.read("/PerfisSet", {
-                    //             success: (oData) => {
+                            //Ini Perfis----------------------------------------------------------------------------
+                            oModel.read("/PerfisSet", {
+                                success: (oData) => {
 
-                    //                 oModelPerfis = new JSONModel(oData.results);
+                                    oModelPerfis = new JSONModel(oData.results);
 
-                    //                 //DEFINIR se perfil Apontador está em modo de edição ou não (editMode: true/false).
-                    //                 this.validarSeCamposFiltrosSaoVisiveis();
+                                    //DEFINIR se perfil Apontador está em modo de edição ou não (editMode: true/false).
+                                    this.validarSeCamposFiltrosSaoVisiveis();
 
-                    //                 //Ini Códigos Frequência----------------------------------------------------------------------------
-                    //                 oModel.read("/CodigosFrequenciaSet", {
-                    //                     success: (oData) => {
+                                    //Ini Códigos Frequência----------------------------------------------------------------------------
+                                    oModel.read("/CodigosFrequenciaSet", {
+                                        success: (oData) => {
 
-                    //                         oModelCodigosFrequenciaDoSAP = new JSONModel(oData.results);
-                    //                         this.getView().setModel(new JSONModel(oModelCodigosFrequenciaDoSAP.oData), "mdlCodigosFrequencia");
+                                            oModelCodigosFrequenciaDoSAP = new JSONModel(oData.results);
+                                            this.getView().setModel(new JSONModel(oModelCodigosFrequenciaDoSAP.oData), "mdlCodigosFrequencia");
 
-                    //                         this.preencherCamposAuxiliares();
+                                            this.preencherCamposAuxiliares();
 
-                    //                     },
-                    //                     error: (oError) => {
-                    //                         MessageToast.show("Erro ao ler os Códigos de Frequência");
-                    //                         //console.log("Erro ao ler os Perfis do SAP: ", oError);
-                    //                     }
-                    //                 });
-                    //                 //Fim Códigos Frequência----------------------------------------------------------------------------
+                                        },
+                                        error: (oError) => {
+                                            MessageToast.show("Erro ao ler os Códigos de Frequência");
+                                            //console.log("Erro ao ler os Perfis do SAP: ", oError);
+                                        }
+                                    });
+                                    //Fim Códigos Frequência----------------------------------------------------------------------------
 
-                    //             },
-                    //             error: (oError) => {
-                    //                 MessageToast.show("Erro ao ler os Perfis");
-                    //                 //console.log("Erro ao ler os Perfis do SAP: ", oError);
-                    //             }
-                    //         });
-                    //         //Fim Perfis----------------------------------------------------------------------------
+                                },
+                                error: (oError) => {
+                                    MessageToast.show("Erro ao ler os Perfis");
+                                }
+                            });
+                            //Fim Perfis----------------------------------------------------------------------------
 
                         },
                         error: (oError) => {
@@ -106,7 +105,7 @@ sap.ui.define([
         
         },
 
-        // preencherCamposAuxiliares: function () {
+        preencherCamposAuxiliares: function () {
         //     oModelOcorrencias.oData.forEach(function(oOcorrencia) {
         //         const oCodigoFrequencia = oModelCodigosFrequenciaDoSAP.oData.find((element) => element.Codigo === oOcorrencia.Justificativa);
         //         if (oCodigoFrequencia) {
@@ -115,8 +114,8 @@ sap.ui.define([
         //     });
 
         //     this.getView().setModel(new JSONModel(oModelOcorrencias.oData), "mdlOcorrencias");
-        // },
-        
+        },
+
         montarComboboxPeriodos: function () {
             //Montar COMBOBOX de Períodos
             var oComboBox = this.getView().byId("cmbPeriodos");
@@ -130,51 +129,96 @@ sap.ui.define([
             });
         },
 
-        // onComboBoxPeriodosChange: function (oEvent) {
+        validarSeCamposFiltrosSaoVisiveis: function() {
+            // DEFINIR se perfil Apontador está em modo de edição ou não (editMode: true/false).
+            // APENAS o Apontador poderá ter os campos filtros visíveis.
+            let aModelPerfis = oModelPerfis.getData();
+            for (let index = 0; index < aModelPerfis.length; index++) {
+                const element = aModelPerfis[index];
+                if (element.Perfil === "Apontador") {
+                    oAppConfig.filters.visible = true;
+                    this.getView().setModel(new JSONModel(oAppConfig.filters), "mdlAppConfig");
+                    break;
+                }
+            }
+        },
 
-        //     let sPeriodoSelecionado = oEvent.getSource().getSelectedKey();
+        onComboBoxPeriodosChange: function (oEvent) {
 
-        //     if (!sPeriodoSelecionado) {
-        //         this.getView().setModel( new JSONModel([]), "mdlOcorrenciasFiltradas" );
-        //         return;
-        //     }
+            let sPeriodoSelecionado = oEvent.getSource().getSelectedKey();
 
-        //     let aOcorrenciasFiltradas = oModelOcorrencias.oData
-        //         .filter(function(oOcorrencia) {
-        //             return oOcorrencia.Periodo === sPeriodoSelecionado;
-        //         })
-        //         .map(function(oOcorrencia) {
-        //             return {
-        //                 ...oOcorrencia, // mantém dados originais
-        //                 Data: new Date(oOcorrencia.Data.getTime() + (3 * 60 * 60 * 1000)),//new Date(oOcorrencia.Data.getDateValue() + oOcorrencia.Data.getTimezoneOffset() * 60000), //formatter.formatDateBR(oOcorrencia.Data), // formata data para exibição
-        //                 editMode: oOcorrencia.Status === "01" ? true : false // boolean para editable
-        //             };
-        //         });
+            if (!sPeriodoSelecionado) {
+                this.getView().setModel( new JSONModel([]), "mdlOcorrenciasFiltradas" );
+                return;
+            }
 
-        //     this.getView().setModel( new JSONModel(aOcorrenciasFiltradas), "mdlOcorrenciasFiltradas" );
+            let aOcorrenciasFiltradas = oModelOcorrencias.oData
+                .filter(function(oOcorrencia) {
+                    return oOcorrencia.Periodo === sPeriodoSelecionado;
+                })
+                .map(function(oOcorrencia) {
+                    return {
+                        ...oOcorrencia, // mantém dados originais
+                        Data: new Date(oOcorrencia.Data.getTime() + (3 * 60 * 60 * 1000)),//new Date(oOcorrencia.Data.getDateValue() + oOcorrencia.Data.getTimezoneOffset() * 60000), //formatter.formatDateBR(oOcorrencia.Data), // formata data para exibição
+                        editMode: oOcorrencia.Status === "01" ? true : false // boolean para editable
+                    };
+                });
 
-        //     // pegar modelo atual
-        //     let oView = this.getView();
-        //     let oModel = oView.getModel("mdlOcorrenciasFiltradas");
-        //     let aData = oModel.getData();
-        //     oModel.setData(aData);
-        //     oModel.refresh(true);            
-        //     this.onPesquisar(); // dispara pesquisa para aplicar filtros de SearchField no período selecionado
-        // },
+            this.getView().setModel( new JSONModel(aOcorrenciasFiltradas), "mdlOcorrenciasFiltradas" );
 
-        // validarSeCamposFiltrosSaoVisiveis: function() {
-        //     // DEFINIR se perfil Apontador está em modo de edição ou não (editMode: true/false).
-        //     // APENAS o Apontador poderá ter os campos filtros visíveis.
-        //     let aModelPerfis = oModelPerfis.getData();
-        //     for (let index = 0; index < aModelPerfis.length; index++) {
-        //         const element = aModelPerfis[index];
-        //         if (element.Perfil === "Apontador") {
-        //             oAppConfig.filters.visible = true;
-        //             this.getView().setModel(new JSONModel(oAppConfig.filters), "mdlAppConfig");
-        //             break;
-        //         }
-        //     }
-        // },
+            // pegar modelo atual
+            let oView = this.getView();
+            let oModel = oView.getModel("mdlOcorrenciasFiltradas");
+            let aData = oModel.getData();
+            oModel.setData(aData);
+            oModel.refresh(true);            
+            this.onPesquisar(); // dispara pesquisa para aplicar filtros de SearchField no período selecionado
+        },
+
+        onPesquisar: function(oEvent) {
+
+            // //TODO: Faltará implementar onPesquisar de acordo com o período Selecionado.
+            // // Porém, já funciona assim !
+            // // Pois o Table já está mostrando somente o período selecionado, então o SearchField só irá filtrar dentro desse período.
+
+            // // pega a tabela interna da SmartTable
+            // let oSmartTable = this.byId("smartTable");
+            // let oTable = oSmartTable.getTable();
+
+            // // pega binding das linhas (depende do tipo de tabela)
+            // let oBinding = oTable.getBinding("items"); // ResponsiveTable
+
+            // // array de filtros            
+            // let aFilters = [];
+
+            // //Empregado
+            // let sValueFilterEmpregado = this.byId("inputEmpregado").getValue(); // pega valor do SearchField
+
+            // if (sValueFilterEmpregado) {
+            //     let oFilterEmpregado = new sap.ui.model.Filter(
+            //         "Empregado", // nome do campo no JSON
+            //         sap.ui.model.FilterOperator.Contains,
+            //         sValueFilterEmpregado
+            //     );
+            //     aFilters.push(oFilterEmpregado);
+            // }
+
+            // //Tipo Ocorrência
+            // let sValueFilterTipoOcorrencia = this.byId("inputTipoOcorrencia").getValue(); // pega valor do SearchField
+
+            // if (sValueFilterTipoOcorrencia) {
+            //     let oFilterTipoOcorrencia = new sap.ui.model.Filter(
+            //         "TipoOcorrencia", // nome do campo no JSON
+            //         sap.ui.model.FilterOperator.Contains,
+            //         sValueFilterTipoOcorrencia
+            //     );
+            //     aFilters.push(oFilterTipoOcorrencia);
+            // }
+
+            // // aplica filtro
+            // oBinding.filter(aFilters);
+
+        },
         // Ler dados do SAP FIM ------------------------------------------------
 
         onListItemPress: function (oEvent) {
