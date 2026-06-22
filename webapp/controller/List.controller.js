@@ -7,9 +7,10 @@ sap.ui.define([
     "sap/f/library",
 
     "sap/ui/model/json/JSONModel",
-    "sap/m/MessageToast"
+    "sap/m/MessageToast",
+    "zhr/flexiblecolumnlayout/model/formatter",
 
-], function (Controller, Filter, FilterOperator, Sorter, MessageBox, fioriLibrary, JSONModel, MessageToast) {
+], function (Controller, Filter, FilterOperator, Sorter, MessageBox, fioriLibrary, JSONModel, MessageToast, formatter) {
     "use strict";
 
     const LayoutType = fioriLibrary.LayoutType;
@@ -25,6 +26,9 @@ sap.ui.define([
     }
 
     return Controller.extend("zhr.flexiblecolumnlayout.controller.List", {
+
+        formatter: formatter,
+
         onInit: function () {
             this.oRouter = this.getOwnerComponent().getRouter();
             this._bDescendingSort = false;
@@ -224,7 +228,7 @@ sap.ui.define([
         onListItemPress: function (oEvent) {
 
             const oItem = oEvent.getParameter("listItem");
-            const oContext = oItem.getBindingContext("mdlOcorrencias");
+            const oContext = oItem.getBindingContext("mdlOcorrenciasFiltradas");
 
             if (!oContext) {
                 return;

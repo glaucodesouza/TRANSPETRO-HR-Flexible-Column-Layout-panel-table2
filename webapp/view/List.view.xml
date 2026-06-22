@@ -62,14 +62,30 @@
 					<Column id="_IDGenColumn3"	hAlign="End">
 						<Text id="_IDGenText3" text="Justificativa" />
 					</Column>
+					<Column id="col00" width="90px">
+						<Text id="txtStatus0" text="Status"/>
+					</Column>
 				</columns>
 				<items>
 					<ColumnListItem id="_IDGenColumnListItem" type="Navigation">
 						<cells>
 							<Text id="txtEmpregado" text="{mdlOcorrenciasFiltradas>Empregado}" /> 
-							<Text id="txtHoraInicio" text="{mdlOcorrenciasFiltradas>HoraInicio}" /> 
-							<Text id="txtHoraFim" text="{mdlOcorrenciasFiltradas>HoraFim}" /> 
+							<Input id="txtHoraInicio" value="{
+										path: 'mdlOcorrenciasFiltradas>HoraInicio',
+										formatter: '.formatter.formatTimeFromMs'
+									}" editable="{mdlOcorrenciasFiltradas>editMode}"/>
+
+							<Input id="txtHoraFim" value="{
+										path: 'mdlOcorrenciasFiltradas>HoraFim',
+										formatter: '.formatter.formatTimeFromMs'
+									}" editable="{mdlOcorrenciasFiltradas>editMode}"/>   
 							<Text id="txtJustificativa" text="{mdlOcorrenciasFiltradas>Justificativa}" /> 
+							<ObjectStatus
+								id="statusEmpregado"
+								text="{path: 'mdlOcorrenciasFiltradas>Status', formatter: '.formatter.statusText'}"
+								icon="{path: 'mdlOcorrenciasFiltradas>Status', formatter: '.formatter.statusIcon'}"
+								state="{path: 'mdlOcorrenciasFiltradas>Status', formatter: '.formatter.statusState'}" />
+
 						</cells>
 					</ColumnListItem>
 				</items>
